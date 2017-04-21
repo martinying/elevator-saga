@@ -1,12 +1,32 @@
 {
 	init: function(elevators, floors) {
-		var elevator = elevators[0]; // Let's use the first elevator
+		var findElevator = function(elevators) {
+			//current dumb algorithm is to get the first elevator
+			return elevators[0];
+		}
 
-		// Whenever the elevator is idle (has no more queued destinations) ...
-		elevator.on("idle", function() {
-			// let's go to all the floors (or did we forget one?)
-			elevator.goToFloor(0);
-			elevator.goToFloor(1);
+
+		//initialize elevators
+		_.each(elevators, function(elevator) {
+			elevator.on("floor_button_pressed", function(floorNum) {
+				this.goToFloor(floorNum);
+			});
+		});
+
+
+		//intialzie floors
+		_.each(floors, function(floor) {
+			floor.on("up_button_pressed", function(e) {
+				return function(floor) {
+					findElevator(e).goToFloor(floor.floorNum());
+				};
+			}(elevators));
+
+			floor.on("down_button_pressed", function(e) {
+				return function(floor) {
+					findElevator(e).goToFloor(floor.floorNum());
+				};
+			}(elevators));
 		});
 	},
 	update: function(dt, elevators, floors) {
