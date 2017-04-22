@@ -1,8 +1,15 @@
 {
 	init: function(elevators, floors) {
 		var findElevator = function(elevators) {
-			//current dumb algorithm is to get the first elevator
-			return elevators[0];
+			var result;
+			var minDesintaitonQueueLength = Number.MAX_SAFE_INTEGER;
+			_.each(elevators, function(elevator) {
+				if (elevator.destinationQueue.length < minDesintaitonQueueLength) {
+					result = elevator;
+					minDesintaitonQueueLength = elevator.destinationQueue.length;
+				}
+			});
+			return result;
 		}
 
 		var elevatorIsGoingToFloorAlready = function(elevator, floorNum) {
