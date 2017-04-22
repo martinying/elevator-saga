@@ -5,11 +5,17 @@
 			return elevators[0];
 		}
 
+		var elevatorIsGoingToFloorAlready = function(elevator, floorNum) {
+			var q = elevator.destinationQueue;
+			return _.contains(q, floorNum);
+		}
 
 		//initialize elevators
 		_.each(elevators, function(elevator) {
 			elevator.on("floor_button_pressed", function(floorNum) {
-				this.goToFloor(floorNum);
+				if (!elevatorIsGoingToFloorAlready(this, floorNum)) {
+					this.goToFloor(floorNum);
+				}
 			});
 		});
 
@@ -18,13 +24,25 @@
 		_.each(floors, function(floor) {
 			floor.on("up_button_pressed", function(e) {
 				return function(floor) {
-					findElevator(e).goToFloor(floor.floorNum());
+					var elevator = findElevator(e);
+					var q = elevator.destinationQueue;
+					if (!elevatorIsGoingToFloorAlready(elevator, floor.floorNum())) {
+						q.push(floor.floorNum());
+						elevator.destinationQueue = q;
+						elevator.checkDestinationQueue();
+					}
 				};
 			}(elevators));
 
 			floor.on("down_button_pressed", function(e) {
 				return function(floor) {
-					findElevator(e).goToFloor(floor.floorNum());
+					var elevator = findElevator(e);
+					var q = elevator.destinationQueue;
+					if (!elevatorIsGoingToFloorAlready(elevator, floor.floorNum())) {
+						q.push(floor.floorNum());
+						elevator.destinationQueue = q;
+						elevator.checkDestinationQueue();
+					}
 				};
 			}(elevators));
 		});
